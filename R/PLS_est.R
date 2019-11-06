@@ -47,7 +47,7 @@ PLS.mosek <- function(N, TT, y, X, K, lambda, beta0 = NULL, R = 500,
             penalty.out <- pen.generate(b.out, a.out, N, p, K, k)
             # do optimization
             mosek.out <- opt.mosek(y, X, penalty.out, N, TT, K, p, lambda)
-            a.out[k, ] <- mosek.out$alpha
+            a.out[k, ] <- mosek.out$alpha[1:p]
             b.out[, , k] <- matrix(mosek.out$beta, N, p, byrow = TRUE)
 
         }
@@ -404,7 +404,7 @@ opt.mosek <- function(y, X, penalty, N, TT, K, p, lambda) {
 
     # set sense of optim and tolerance
     prob <- list(sense = "min")
-    prob$dparam$intpnt_nl_tol_rel_gap <- 1e-05
+    #prob$dparam$intpnt_nl_tol_rel_gap <- 1e-05
 
     # objective: coeffiects c order of variables: beta_i (i = 1,2,..N),
     # nu_i (i=1,2,...,N) , mu_i (i=1,2,...,N) alpha_k, s_i (i=1,2,...,N),
@@ -465,7 +465,7 @@ opt.mosek <- function(y, X, penalty, N, TT, K, p, lambda) {
 
     # Invoke mosek solver
 
-    mosek.out <- mosek(prob, opts = list(verbose = 0))
+    mosek.out <- mosek(prob, opts = list(verbose = 1))
 
     est <- mosek.out$sol$itr$xx
     beta <- est[1:(N * p)]
